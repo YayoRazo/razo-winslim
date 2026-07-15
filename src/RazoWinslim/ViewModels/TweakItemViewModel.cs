@@ -12,8 +12,10 @@ public sealed class TweakItemViewModel : INotifyPropertyChanged
     public bool IsEnabled
     {
         get => _isEnabled;
-        set { _isEnabled = value; OnPropertyChanged(); }
+        set { _isEnabled = value; OnPropertyChanged(); OnPropertyChanged(nameof(StateLabel)); }
     }
+
+    public string StateLabel => IsEnabled ? "Enabled now" : "Disabled now";
 
     private string? _errorMessage;
     public string? ErrorMessage
