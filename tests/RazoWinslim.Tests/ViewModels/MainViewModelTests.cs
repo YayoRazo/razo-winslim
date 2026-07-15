@@ -31,7 +31,7 @@ public class MainViewModelTests
         });
 
     private static TweakEngine BuildEngine(FakeServiceApi service, StateStore store) =>
-        new(service, new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), new FakeAppxApi(), store);
+        new(service, new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), new FakeAppxApi(), new FakeDefenderApi(), store);
 
     [Fact]
     public void GroupsItemsByCategory()

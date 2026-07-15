@@ -26,7 +26,6 @@ public sealed class SchtasksTaskSchedulerApi : ITaskSchedulerApi
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            StandardOutputEncoding = System.Text.Encoding.Unicode,
             UseShellExecute = false,
             CreateNoWindow = true
         };

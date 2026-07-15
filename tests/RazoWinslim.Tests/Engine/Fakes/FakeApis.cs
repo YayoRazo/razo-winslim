@@ -60,6 +60,14 @@ public class FakeStartupApi : IStartupApi
     public void SetEnabled(string appName, bool enabled) => Enabled[appName] = enabled;
 }
 
+public class FakeDefenderApi : IDefenderApi
+{
+    public bool RealTimeProtectionEnabled { get; set; } = true;
+
+    public bool GetRealTimeProtectionEnabled() => RealTimeProtectionEnabled;
+    public void SetRealTimeProtectionEnabled(bool enabled) => RealTimeProtectionEnabled = enabled;
+}
+
 public class FakeAppxApi : IAppxApi
 {
     public Dictionary<string, string> InstalledPackages { get; } = new();

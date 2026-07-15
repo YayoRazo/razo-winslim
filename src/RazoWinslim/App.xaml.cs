@@ -31,6 +31,7 @@ public partial class App : Application
                 new Win32RegistryApi(),
                 new StartupApprovedApi(),
                 new PowerShellAppxApi(),
+                new DefenderPowerShellApi(),
                 stateStore);
 
             var viewModel = new MainViewModel(catalog, engine);

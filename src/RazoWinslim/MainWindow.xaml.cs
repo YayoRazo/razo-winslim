@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using RazoWinslim.ViewModels;
 using RazoWinslim.Views;
 
@@ -16,7 +18,7 @@ public partial class MainWindow : Window
         DataContext = _viewModel;
     }
 
-    private void OnToggleClicked(object sender, RoutedEventArgs e)
+    private async void OnToggleClicked(object sender, RoutedEventArgs e)
     {
         var toggle = (ToggleButton)sender;
         var item = (TweakItemViewModel)toggle.Tag;
@@ -32,8 +34,20 @@ public partial class MainWindow : Window
             }
         }
 
-        var result = turningOff ? _viewModel.ToggleOff(item) : _viewModel.ToggleOn(item);
-        if (!result.Success)
-            toggle.IsChecked = turningOff;
+        toggle.IsEnabled = false;
+        item.IsBusy = true;
+        Mouse.OverrideCursor = Cursors.Wait;
+        try
+        {
+            var result = await Task.Run(() => turningOff ? _viewModel.ToggleOff(item) : _viewModel.ToggleOn(item));
+            if (!result.Success)
+                toggle.IsChecked = turningOff;
+        }
+        finally
+        {
+            item.IsBusy = false;
+            Mouse.OverrideCursor = null;
+            toggle.IsEnabled = true;
+        }
     }
 }

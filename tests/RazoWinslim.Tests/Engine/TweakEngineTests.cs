@@ -17,9 +17,14 @@ public class TweakEngineTests
         var statePath = Path.Combine(Path.GetTempPath(), $"winslim-state-{Guid.NewGuid()}.json");
         var store = new StateStore(statePath);
         var service = new FakeServiceApi();
-        var engine = new TweakEngine(service, new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), new FakeAppxApi(), store);
+        var engine = new TweakEngine(service, new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), new FakeAppxApi(), new FakeDefenderApi(), store);
         return (engine, service, store, statePath);
     }
+
+    private static TweakCatalogEntry DefenderEntry() => new(
+        "svc-windefend", "Services", "Defender real-time protection", "desc",
+        RiskTier.Advanced, TargetType.DefenderProtection,
+        new Dictionary<string, string>());
 
     [Fact]
     public void ApplyCapturesOriginalStateBeforeMutating()
@@ -113,7 +118,7 @@ public class TweakEngineTests
         var store = new StateStore(statePath);
         var appx = new FakeAppxApi();
         appx.InstalledPackages["Microsoft.Xbox_8wekyb3d8bbwe"] = "Microsoft.Xbox_1.0.0.0_x64__8wekyb3d8bbwe";
-        var engine = new TweakEngine(new FakeServiceApi(), new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), appx, store);
+        var engine = new TweakEngine(new FakeServiceApi(), new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), appx, new FakeDefenderApi(), store);
         var entry = new TweakCatalogEntry(
             "appx-xbox", "Bloatware", "Xbox app", "desc", RiskTier.Safe, TargetType.AppxPackage,
             new Dictionary<string, string> { ["packageFamilyName"] = "Microsoft.Xbox_8wekyb3d8bbwe" });
@@ -127,6 +132,45 @@ public class TweakEngineTests
 
             Assert.False(reverted.Success);
             Assert.Equal("Package manifest no longer present; not reversible.", reverted.ErrorMessage);
+        }
+        finally { File.Delete(statePath); }
+    }
+
+    [Fact]
+    public void ApplyTurnsOffDefenderRealTimeProtectionViaMpPreference()
+    {
+        var statePath = Path.Combine(Path.GetTempPath(), $"winslim-state-{Guid.NewGuid()}.json");
+        var store = new StateStore(statePath);
+        var defender = new FakeDefenderApi { RealTimeProtectionEnabled = true };
+        var engine = new TweakEngine(new FakeServiceApi(), new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), new FakeAppxApi(), defender, store);
+
+        try
+        {
+            var result = engine.Apply(DefenderEntry());
+
+            Assert.True(result.Success);
+            Assert.False(defender.RealTimeProtectionEnabled);
+            Assert.False(engine.GetCurrentEnabledState(DefenderEntry()));
+        }
+        finally { File.Delete(statePath); }
+    }
+
+    [Fact]
+    public void RevertRestoresDefenderRealTimeProtection()
+    {
+        var statePath = Path.Combine(Path.GetTempPath(), $"winslim-state-{Guid.NewGuid()}.json");
+        var store = new StateStore(statePath);
+        var defender = new FakeDefenderApi { RealTimeProtectionEnabled = true };
+        var engine = new TweakEngine(new FakeServiceApi(), new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), new FakeAppxApi(), defender, store);
+
+        try
+        {
+            engine.Apply(DefenderEntry());
+
+            var result = engine.Revert(DefenderEntry());
+
+            Assert.True(result.Success);
+            Assert.True(defender.RealTimeProtectionEnabled);
         }
         finally { File.Delete(statePath); }
     }

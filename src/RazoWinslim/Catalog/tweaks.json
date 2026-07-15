@@ -30,10 +30,10 @@
     "id": "svc-windefend",
     "category": "Services",
     "displayName": "Microsoft Defender Antivirus Service",
-    "description": "Real-time antivirus protection. Disabling removes malware protection until re-enabled.",
+    "description": "Real-time antivirus protection (via Set-MpPreference). Disabling removes malware protection until re-enabled.",
     "riskTier": "Advanced",
-    "targetType": "Service",
-    "targetIdentifier": { "serviceName": "WinDefend", "desiredStartMode": "Disabled" }
+    "targetType": "DefenderProtection",
+    "targetIdentifier": {}
   },
   {
     "id": "task-compat-appraiser",
@@ -42,7 +42,7 @@
     "description": "Scans installed apps for update compatibility telemetry. Runs periodically in the background.",
     "riskTier": "Safe",
     "targetType": "ScheduledTask",
-    "targetIdentifier": { "taskPath": "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser" }
+    "targetIdentifier": { "taskPath": "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser Exp" }
   },
   {
     "id": "task-ceip-consolidator",

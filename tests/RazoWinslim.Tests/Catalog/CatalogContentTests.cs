@@ -1,3 +1,4 @@
+using System.Linq;
 using RazoWinslim.Catalog;
 using Xunit;
 
@@ -24,6 +25,26 @@ public class CatalogContentTests
         {
             Assert.DoesNotContain(entry.TargetIdentifier["serviceName"], forbidden);
         }
+    }
+
+    [Fact]
+    public void DefenderEntryUsesMpPreferenceNotRawServiceStart()
+    {
+        var entries = TweakCatalogLoader.LoadFromJson(File.ReadAllText(CatalogPath));
+        var defender = entries.Single(e => e.Id == "svc-windefend");
+
+        Assert.Equal(TargetType.DefenderProtection, defender.TargetType);
+    }
+
+    [Fact]
+    public void CompatAppraiserTaskPathMatchesCurrentWindowsTaskName()
+    {
+        var entries = TweakCatalogLoader.LoadFromJson(File.ReadAllText(CatalogPath));
+        var appraiser = entries.Single(e => e.Id == "task-compat-appraiser");
+
+        Assert.Equal(
+            "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser Exp",
+            appraiser.TargetIdentifier["taskPath"]);
     }
 
     [Fact]

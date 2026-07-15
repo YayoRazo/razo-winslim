@@ -8,10 +8,11 @@ public sealed class RegistryServiceApi : IServiceApi
 
     public string GetStartMode(string serviceName)
     {
-        using var key = Registry.LocalMachine.OpenSubKey($@"{ServicesKeyPath}\{serviceName}")
-            ?? throw new InvalidOperationException($"Service not found: {serviceName}");
-        var value = (int)(key.GetValue("Start") ?? throw new InvalidOperationException($"Service {serviceName} has no Start value."));
-        return DwordToStartMode(value);
+        using var key = Registry.LocalMachine.OpenSubKey($@"{ServicesKeyPath}\{serviceName}");
+        if (key is null) return "Disabled"; // service not present - nothing running, already at the safe end state
+        var raw = key.GetValue("Start");
+        if (raw is null) return "Disabled"; // no Start value - SCM cannot start it, already inert
+        return DwordToStartMode((int)raw);
     }
 
     public void SetStartMode(string serviceName, string startMode)

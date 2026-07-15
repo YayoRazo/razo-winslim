@@ -32,6 +32,12 @@ public interface IAppxApi
     bool TryReinstall(string packageFullName);
 }
 
+public interface IDefenderApi
+{
+    bool GetRealTimeProtectionEnabled();
+    void SetRealTimeProtectionEnabled(bool enabled);
+}
+
 public sealed record ApplyResult(bool Success, string? ErrorMessage)
 {
     public static ApplyResult Ok() => new(true, null);

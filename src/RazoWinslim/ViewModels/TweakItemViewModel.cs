@@ -15,7 +15,14 @@ public sealed class TweakItemViewModel : INotifyPropertyChanged
         set { _isEnabled = value; OnPropertyChanged(); OnPropertyChanged(nameof(StateLabel)); }
     }
 
-    public string StateLabel => IsEnabled ? "Enabled now" : "Disabled now";
+    private bool _isBusy;
+    public bool IsBusy
+    {
+        get => _isBusy;
+        set { _isBusy = value; OnPropertyChanged(); OnPropertyChanged(nameof(StateLabel)); }
+    }
+
+    public string StateLabel => IsBusy ? "Applying..." : IsEnabled ? "Enabled now" : "Disabled now";
 
     private string? _errorMessage;
     public string? ErrorMessage

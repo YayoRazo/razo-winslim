@@ -9,6 +9,7 @@ public sealed class TweakEngine
     private readonly IRegistryApi _registryApi;
     private readonly IStartupApi _startupApi;
     private readonly IAppxApi _appxApi;
+    private readonly IDefenderApi _defenderApi;
     private readonly StateStore _stateStore;
 
     public TweakEngine(
@@ -17,6 +18,7 @@ public sealed class TweakEngine
         IRegistryApi registryApi,
         IStartupApi startupApi,
         IAppxApi appxApi,
+        IDefenderApi defenderApi,
         StateStore stateStore)
     {
         _serviceApi = serviceApi;
@@ -24,6 +26,7 @@ public sealed class TweakEngine
         _registryApi = registryApi;
         _startupApi = startupApi;
         _appxApi = appxApi;
+        _defenderApi = defenderApi;
         _stateStore = stateStore;
     }
 
@@ -35,6 +38,7 @@ public sealed class TweakEngine
         TargetType.RegistryValue => !RegistryValueMatchesDesired(entry),
         TargetType.StartupEntry => _startupApi.GetEnabled(entry.TargetIdentifier["appName"]),
         TargetType.AppxPackage => _appxApi.IsInstalled(entry.TargetIdentifier["packageFamilyName"], out _),
+        TargetType.DefenderProtection => _defenderApi.GetRealTimeProtectionEnabled(),
         _ => throw new InvalidOperationException($"Unknown target type: {entry.TargetType}")
     };
 
@@ -90,6 +94,10 @@ public sealed class TweakEngine
                 ["enabled"] = _startupApi.GetEnabled(entry.TargetIdentifier["appName"]).ToString()
             },
             TargetType.AppxPackage => CaptureAppxOriginal(entry),
+            TargetType.DefenderProtection => new Dictionary<string, string>
+            {
+                ["enabled"] = _defenderApi.GetRealTimeProtectionEnabled().ToString()
+            },
             _ => throw new InvalidOperationException($"Unknown target type: {entry.TargetType}")
         };
 
@@ -154,6 +162,9 @@ public sealed class TweakEngine
                 if (_appxApi.IsInstalled(entry.TargetIdentifier["packageFamilyName"], out var fullName))
                     _appxApi.Remove(fullName);
                 break;
+            case TargetType.DefenderProtection:
+                _defenderApi.SetRealTimeProtectionEnabled(false);
+                break;
             default:
                 throw new InvalidOperationException($"Unknown target type: {entry.TargetType}");
         }
@@ -186,6 +197,9 @@ public sealed class TweakEngine
                     if (!_appxApi.TryReinstall(original["packageFullName"]))
                         throw new InvalidOperationException("Package manifest no longer present; not reversible.");
                 }
+                break;
+            case TargetType.DefenderProtection:
+                _defenderApi.SetRealTimeProtectionEnabled(bool.Parse(original["enabled"]));
                 break;
             default:
                 throw new InvalidOperationException($"Unknown target type: {entry.TargetType}");
