@@ -1,0 +1,97 @@
+[
+  {
+    "id": "svc-diagtrack",
+    "category": "Services",
+    "displayName": "Connected User Experiences and Telemetry",
+    "description": "Collects and sends Windows diagnostic/usage data. Safe to disable for a leaner idle footprint.",
+    "riskTier": "Safe",
+    "targetType": "Service",
+    "targetIdentifier": { "serviceName": "DiagTrack", "desiredStartMode": "Disabled" }
+  },
+  {
+    "id": "svc-dmwappushservice",
+    "category": "Services",
+    "displayName": "WAP Push Message Routing Service",
+    "description": "Routes WAP push messages, unused outside enterprise MDM scenarios.",
+    "riskTier": "Safe",
+    "targetType": "Service",
+    "targetIdentifier": { "serviceName": "dmwappushservice", "desiredStartMode": "Disabled" }
+  },
+  {
+    "id": "svc-mapsbroker",
+    "category": "Services",
+    "displayName": "Downloaded Maps Manager",
+    "description": "Manages offline map downloads. Not needed unless you use the Maps app offline.",
+    "riskTier": "Safe",
+    "targetType": "Service",
+    "targetIdentifier": { "serviceName": "MapsBroker", "desiredStartMode": "Manual" }
+  },
+  {
+    "id": "svc-windefend",
+    "category": "Services",
+    "displayName": "Microsoft Defender Antivirus Service",
+    "description": "Real-time antivirus protection. Disabling removes malware protection until re-enabled.",
+    "riskTier": "Advanced",
+    "targetType": "Service",
+    "targetIdentifier": { "serviceName": "WinDefend", "desiredStartMode": "Disabled" }
+  },
+  {
+    "id": "task-compat-appraiser",
+    "category": "Scheduled tasks",
+    "displayName": "Microsoft Compatibility Appraiser",
+    "description": "Scans installed apps for update compatibility telemetry. Runs periodically in the background.",
+    "riskTier": "Safe",
+    "targetType": "ScheduledTask",
+    "targetIdentifier": { "taskPath": "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser" }
+  },
+  {
+    "id": "task-ceip-consolidator",
+    "category": "Scheduled tasks",
+    "displayName": "Customer Experience Improvement Program Consolidator",
+    "description": "Aggregates and uploads usage statistics for the CEIP.",
+    "riskTier": "Safe",
+    "targetType": "ScheduledTask",
+    "targetIdentifier": { "taskPath": "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator" }
+  },
+  {
+    "id": "reg-telemetry-level",
+    "category": "Telemetry & diagnostics",
+    "displayName": "Diagnostic data level",
+    "description": "Sets the Windows diagnostic data collection level to the minimum ('Security', value 0).",
+    "riskTier": "Safe",
+    "targetType": "RegistryValue",
+    "targetIdentifier": {
+      "keyPath": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+      "valueName": "AllowTelemetry",
+      "desiredValueKind": "DWord",
+      "desiredData": "0"
+    }
+  },
+  {
+    "id": "startup-onedrive",
+    "category": "Startup apps",
+    "displayName": "OneDrive",
+    "description": "Launches OneDrive sync client at login. Present by default on a fresh Windows 11 install.",
+    "riskTier": "Safe",
+    "targetType": "StartupEntry",
+    "targetIdentifier": { "appName": "OneDrive" }
+  },
+  {
+    "id": "appx-xbox-gamebar",
+    "category": "Bloatware uninstall",
+    "displayName": "Xbox Game Bar",
+    "description": "Preinstalled Xbox overlay app, unused outside PC gaming with Xbox integration.",
+    "riskTier": "Safe",
+    "targetType": "AppxPackage",
+    "targetIdentifier": { "packageFamilyName": "Microsoft.XboxGamingOverlay_8wekyb3d8bbwe" }
+  },
+  {
+    "id": "appx-widgets",
+    "category": "Bloatware uninstall",
+    "displayName": "Widgets",
+    "description": "Preinstalled news/weather widgets panel.",
+    "riskTier": "Safe",
+    "targetType": "AppxPackage",
+    "targetIdentifier": { "packageFamilyName": "MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy" }
+  }
+]

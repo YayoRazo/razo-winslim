@@ -1,0 +1,7 @@
+.razo/
+bin/
+obj/
+publish/
+*.user
+state.json
+winslim.log
