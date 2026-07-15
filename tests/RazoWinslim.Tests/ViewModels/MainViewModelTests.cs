@@ -19,6 +19,17 @@ public class MainViewModelTests
         RiskTier.Advanced, TargetType.Service,
         new Dictionary<string, string> { ["serviceName"] = "WinDefend", ["desiredStartMode"] = "Disabled" });
 
+    private static TweakCatalogEntry RegistryEntry() => new(
+        "reg-telemetry-level", "Telemetry & diagnostics", "Diagnostic data level", "desc",
+        RiskTier.Safe, TargetType.RegistryValue,
+        new Dictionary<string, string>
+        {
+            ["keyPath"] = "SOFTWARE\\Test",
+            ["valueName"] = "Foo",
+            ["desiredValueKind"] = "DWord",
+            ["desiredData"] = "0"
+        });
+
     private static TweakEngine BuildEngine(FakeServiceApi service, StateStore store) =>
         new(service, new FakeTaskSchedulerApi(), new FakeRegistryApi(), new FakeStartupApi(), new FakeAppxApi(), store);
 
@@ -68,5 +79,22 @@ public class MainViewModelTests
             Logger.LogPath = originalLogPath;
             File.Delete(logPath);
         }
+    }
+
+    [Fact]
+    public void FailedStateReadIsolatesToOneRow_DoesNotCrashConstructor()
+    {
+        var service = new FakeServiceApi { ThrowOnGet = true };
+        var store = new StateStore(Path.Combine(Path.GetTempPath(), $"winslim-{Guid.NewGuid()}.json"));
+        var engine = BuildEngine(service, store);
+
+        var vm = new MainViewModel(new List<TweakCatalogEntry> { SafeEntry(), RegistryEntry() }, engine);
+
+        var allItems = vm.GroupedTweaks.SelectMany(g => g).ToList();
+        var brokenItem = allItems.Single(i => i.Entry.Id == "svc-diagtrack");
+        var workingItem = allItems.Single(i => i.Entry.Id == "reg-telemetry-level");
+
+        Assert.True(brokenItem.HasError);
+        Assert.False(workingItem.HasError);
     }
 }

@@ -15,12 +15,22 @@ public sealed class MainViewModel
     {
         _engine = engine;
 
-        var items = catalog
-            .Select(entry => new TweakItemViewModel(entry, engine.GetCurrentEnabledState(entry)))
-            .ToList();
+        var items = catalog.Select(entry => CreateItem(entry, engine)).ToList();
 
         GroupedTweaks = new ObservableCollection<IGrouping<string, TweakItemViewModel>>(
             items.GroupBy(i => i.Entry.Category));
+    }
+
+    private static TweakItemViewModel CreateItem(TweakCatalogEntry entry, TweakEngine engine)
+    {
+        try
+        {
+            return new TweakItemViewModel(entry, engine.GetCurrentEnabledState(entry));
+        }
+        catch (Exception ex)
+        {
+            return new TweakItemViewModel(entry, isEnabled: true) { ErrorMessage = $"Could not read current state: {ex.Message}" };
+        }
     }
 
     public ApplyResult ToggleOff(TweakItemViewModel item)

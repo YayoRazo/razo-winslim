@@ -6,8 +6,13 @@ public class FakeServiceApi : IServiceApi
 {
     public Dictionary<string, string> StartModes { get; } = new();
     public bool ThrowOnSet { get; set; }
+    public bool ThrowOnGet { get; set; }
 
-    public string GetStartMode(string serviceName) => StartModes.GetValueOrDefault(serviceName, "Automatic");
+    public string GetStartMode(string serviceName)
+    {
+        if (ThrowOnGet) throw new InvalidOperationException("Simulated failure reading start mode.");
+        return StartModes.GetValueOrDefault(serviceName, "Automatic");
+    }
 
     public void SetStartMode(string serviceName, string startMode)
     {
